@@ -1,5 +1,9 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from q1 import *
+from q2 import *
+from q3 import *
+from q4 import *
+from q5 import *
 
 class Ui_Form(object):
     def setupUi(self, Form):
@@ -54,18 +58,25 @@ class Ui_Form(object):
         self.augmented_reality_btn = QtWidgets.QPushButton(self.groupBox_3)
         self.augmented_reality_btn.setGeometry(QtCore.QRect(80, 30, 151, 31))
         self.augmented_reality_btn.setObjectName("augmented_reality_btn")
+        self.augmented_reality_btn.clicked.connect(augmentedReality)
         self.groupBox_4 = QtWidgets.QGroupBox(Form)
         self.groupBox_4.setGeometry(QtCore.QRect(650, 120, 321, 81))
         self.groupBox_4.setObjectName("groupBox_4")
         self.stereo_disparity_map_btn = QtWidgets.QPushButton(self.groupBox_4)
         self.stereo_disparity_map_btn.setGeometry(QtCore.QRect(80, 30, 151, 31))
         self.stereo_disparity_map_btn.setObjectName("stereo_disparity_map_btn")
+        self.stereo_disparity_map_btn.clicked.connect(disparityMap)
         self.groupBox_5 = QtWidgets.QGroupBox(Form)
-        self.groupBox_5.setGeometry(QtCore.QRect(650, 220, 321, 81))
+        self.groupBox_5.setGeometry(QtCore.QRect(650, 220, 321, 120))
         self.groupBox_5.setObjectName("groupBox_5")
-        self.background_substraction_btn = QtWidgets.QPushButton(self.groupBox_5)
-        self.background_substraction_btn.setGeometry(QtCore.QRect(80, 30, 151, 31))
-        self.background_substraction_btn.setObjectName("background_substraction_btn")
+        self.keypoint_btn = QtWidgets.QPushButton(self.groupBox_5)
+        self.keypoint_btn.setGeometry(QtCore.QRect(80, 30, 151, 31))
+        self.keypoint_btn.setObjectName("keypoint_btn")
+        self.keypoint_btn.clicked.connect(createKeyPoint)
+        self.matched_keypoint_btn = QtWidgets.QPushButton(self.groupBox_5)
+        self.matched_keypoint_btn.setGeometry(QtCore.QRect(80, 70, 151, 31))
+        self.matched_keypoint_btn.setObjectName("keypoint_btn")
+        self.matched_keypoint_btn.clicked.connect(matchedKeyPoint)
         self.groupBox_6 = QtWidgets.QGroupBox(Form)
         self.groupBox_6.setGeometry(QtCore.QRect(40, 340, 931, 251))
         self.groupBox_6.setObjectName("groupBox_6")
@@ -121,8 +132,9 @@ class Ui_Form(object):
         self.augmented_reality_btn.setText(_translate("Form", "2.1 Augmented Reality"))
         self.groupBox_4.setTitle(_translate("Form", "3. Stereo Disparity Map"))
         self.stereo_disparity_map_btn.setText(_translate("Form", "3.1 Stereo Disparity Map"))
-        self.groupBox_5.setTitle(_translate("Form", "4. Background Substraction"))
-        self.background_substraction_btn.setText(_translate("Form", "4.1 Background Substraction"))
+        self.groupBox_5.setTitle(_translate("Form", "4. SIFT"))
+        self.keypoint_btn.setText(_translate("Form", "4.1 Keypoints"))
+        self.matched_keypoint_btn.setText(_translate("Form", "4.2 Matched Keypoints"))
         self.groupBox_6.setTitle(_translate("Form", "5. Training Cifar10 Classifire Using VGG16"))
         self.show_train_images_btn.setText(_translate("Form", "1. Show Train Images"))
         self.show_hyperparameters_btn.setText(_translate("Form", "2. Show Hyperparameters"))

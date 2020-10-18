@@ -4,8 +4,6 @@ import numpy as np
 WIDTH = 11
 HEIGHT = 8 
 
-Intrinsic_Matrix = []
-
 def findCorners():
     # termination criteria
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
@@ -36,7 +34,6 @@ def findInstrinsic():
             obj_point_list.append(objp)
             img_point_list.append(corners)
             
-    img = cv2.imread(f"Q1_image/{3}.bmp")
     ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(obj_point_list, img_point_list, gray_img.shape[::-1], None, None)   
     print(f"Camera's intrinsic matrix is:")
     np.set_printoptions(suppress=True, precision=6)
