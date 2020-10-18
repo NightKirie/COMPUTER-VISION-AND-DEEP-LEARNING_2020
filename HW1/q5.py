@@ -13,6 +13,7 @@ from tensorflow.keras.utils import get_file
 import numpy as np
 import os
 import random
+import matplotlib.pyplot as plt
 
 class cifar10vgg:
     def __init__(self, batch_size, maxepoches, learning_rate, train):
