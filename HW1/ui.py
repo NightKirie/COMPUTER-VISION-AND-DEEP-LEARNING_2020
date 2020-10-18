@@ -1,12 +1,5 @@
-# -*- coding: utf-8 -*-
-
-# Form implementation generated from reading ui file 'hw1.ui'
-#
-# Created by: PyQt5 UI code generator 5.9.2
-#
-# WARNING! All changes made in this file will be lost!
-
 from PyQt5 import QtCore, QtGui, QtWidgets
+from q1 import *
 
 class Ui_Form(object):
     def setupUi(self, Form):
@@ -18,12 +11,15 @@ class Ui_Form(object):
         self.find_corners_btn = QtWidgets.QPushButton(self.groupBox)
         self.find_corners_btn.setGeometry(QtCore.QRect(80, 40, 131, 31))
         self.find_corners_btn.setObjectName("find_corners_btn")
+        self.find_corners_btn.clicked.connect(findCorners)
         self.find_intrinsic_btn = QtWidgets.QPushButton(self.groupBox)
         self.find_intrinsic_btn.setGeometry(QtCore.QRect(80, 90, 131, 31))
         self.find_intrinsic_btn.setObjectName("find_intrinsic_btn")
+        self.find_intrinsic_btn.clicked.connect(findInstrinsic)
         self.find_distortion_btn = QtWidgets.QPushButton(self.groupBox)
         self.find_distortion_btn.setGeometry(QtCore.QRect(80, 140, 131, 31))
         self.find_distortion_btn.setObjectName("find_distortion_btn")
+        self.find_distortion_btn.clicked.connect(findDistorsion)
         self.groupBox_2 = QtWidgets.QGroupBox(self.groupBox)
         self.groupBox_2.setGeometry(QtCore.QRect(270, 40, 251, 131))
         self.groupBox_2.setObjectName("groupBox_2")
@@ -51,6 +47,7 @@ class Ui_Form(object):
         self.find_extrinsic_btn = QtWidgets.QPushButton(self.groupBox_2)
         self.find_extrinsic_btn.setGeometry(QtCore.QRect(20, 80, 131, 31))
         self.find_extrinsic_btn.setObjectName("find_extrinsic_btn")
+        self.find_extrinsic_btn.clicked.connect(lambda: findExtrinsic(self.find_extrinsic_combobox.currentText()))
         self.groupBox_3 = QtWidgets.QGroupBox(Form)
         self.groupBox_3.setGeometry(QtCore.QRect(650, 30, 321, 81))
         self.groupBox_3.setObjectName("groupBox_3")
