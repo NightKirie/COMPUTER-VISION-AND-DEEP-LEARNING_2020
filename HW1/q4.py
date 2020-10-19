@@ -33,6 +33,8 @@ def createKeyPoint():
     img1 = cv2.drawKeypoints(gray_img1, kp1_good[:6], img1, **draw_params)
     img2 = cv2.drawKeypoints(gray_img2, kp2_good[:6], img2, **draw_params)
 
+    cv2.imshow("img1", img1)
+    cv2.imshow("img2", img2)
 
     cv2.imwrite('Q4_Image/FeatureAerial1.jpg', img1)
     cv2.imwrite('Q4_Image/FeatureAerial2.jpg', img2)

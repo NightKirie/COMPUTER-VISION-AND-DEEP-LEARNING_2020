@@ -206,7 +206,7 @@ class cifar10vgg:
         (x_train, y_train), (x_test, y_test) = cifar10.load_data()
         for i in range(0, 10):
             rand = random.randint(0, len(x_train))
-            print(y_train[rand])
+            
 
 
     def show_model_structure(self):
