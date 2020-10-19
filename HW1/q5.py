@@ -71,11 +71,11 @@ class cifar10vgg:
         self.model = self.build_model()
         if train:
             if load:
-                self.model.load_weights('cifar10vgg.h5')
+                self.model.load_weights('Q5_data/cifar10vgg.h5')
             self.model = self.train(self.model)
         else:
-            if os.path.exists("cifar10vgg.h5"):
-                self.model.load_weights('cifar10vgg.h5')
+            if os.path.exists("Q5_data/cifar10vgg.h5"):
+                self.model.load_weights('Q5_data/cifar10vgg.h5')
             else:
                 print("No pre-train model found")
 
@@ -245,7 +245,7 @@ class cifar10vgg:
             callbacks=[LearningRateScheduler(lr_scheduler)],
             verbose=2)
 
-        model.save_weights('cifar10vgg.h5')
+        model.save_weights('Q5_data/cifar10vgg.h5')
         return model
     
     def show_random_10_img(self):
