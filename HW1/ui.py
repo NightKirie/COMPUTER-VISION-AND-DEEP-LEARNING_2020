@@ -103,7 +103,7 @@ class Ui_Form(object):
         self.test_btn = QtWidgets.QPushButton(self.groupBox_6)
         self.test_btn.setGeometry(QtCore.QRect(660, 150, 141, 31))
         self.test_btn.setObjectName("test_btn")
-        self.test_btn.clicked.connect(lambda: test(self.spinBox.value))
+        self.test_btn.clicked.connect(lambda: test(self.spinBox.value()))
 
         self.retranslateUi(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)

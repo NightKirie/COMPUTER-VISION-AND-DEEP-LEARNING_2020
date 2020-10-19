@@ -14,8 +14,49 @@ import numpy as np
 import os
 import random
 import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+
 
 LABEL_NAME = ["airplane", "automobile", "bird", "cat", "deer", "dog", "frog", "horse", "ship", "truck"]
+
+class LearningRateScheduler(tf.keras.callbacks.Callback):
+    """Learning rate scheduler which sets the learning rate according to schedule.
+
+    Arguments:
+        schedule: a function that takes an epoch index
+            (integer, indexed from 0) and current learning rate
+            as inputs and returns a new learning rate as output (float).
+    """
+
+    def __init__(self, schedule):
+        super(LearningRateScheduler, self).__init__()
+        self.schedule = schedule
+
+    def on_train_begin(self, logs=None):
+        print("Training start, remove previous values")
+        if os.path.exists("Q5_data/train_acc.txt"):
+            os.remove(("Q5_data/train_acc.txt"))
+        
+        if os.path.exists("Q5_data/test_acc.txt"):
+            os.remove(("Q5_data/test_acc.txt"))
+
+        if os.path.exists("Q5_data/train_loss.txt"):
+            os.remove(("Q5_data/train_loss.txt"))
+
+    def on_epoch_end(self, epoch, logs=None):
+        print(f"Epoch {epoch+1} end, store values")
+        with open("Q5_data/train_acc.txt", "a+") as f:
+            f.write(str(logs['accuracy']) + "\n")
+            f.close()
+
+        with open("Q5_data/test_acc.txt", "a+") as f:
+            f.write(str(logs['val_accuracy']) + "\n")
+            f.close()
+
+        with open("Q5_data/train_loss.txt", "a+") as f:
+            f.write(str(logs['loss']) + "\n")
+            f.close()
+
 
 class cifar10vgg:
     def __init__(self, batch_size, maxepoches, learning_rate, train, load):
@@ -173,7 +214,7 @@ class cifar10vgg:
 
         def lr_scheduler(epoch):
             return self.learning_rate * (0.5 ** (epoch // lr_drop))
-        reduce_lr = tf.keras.callbacks.LearningRateScheduler(lr_scheduler)
+        #reduce_lr = tf.keras.callbacks.LearningRateScheduler(lr_scheduler)
 
         # data augmentation
         datagen = ImageDataGenerator(
@@ -201,8 +242,9 @@ class cifar10vgg:
             steps_per_epoch=x_train.shape[0] // self.batch_size,
             epochs=self.maxepoches,
             validation_data=(x_test, y_test),
-            callbacks=[reduce_lr],
+            callbacks=[LearningRateScheduler(lr_scheduler)],
             verbose=2)
+
         model.save_weights('cifar10vgg.h5')
         return model
     
@@ -239,45 +281,46 @@ def train_model():
     test_acc_list = []
 
 
-    for i in range(0, 100):
-        print(f"epoch {i+1}")
-        model = cifar10vgg(
-            batch_size=128, 
-            maxepoches=1, 
-            learning_rate=0.1, 
-            train=True,
-            load=True if i != 0 else False)
+    model = cifar10vgg(
+        batch_size=128, 
+        maxepoches=100, 
+        learning_rate=0.1, 
+        train=True,
+        load=False)
 
-        train_predicted_x = model.predict(x_train)
-        train_valid = np.argmax(train_predicted_x,1) == np.argmax(y_train,1)
-        train_accuracy = sum(train_valid)/len(train_valid)
-        print("the train accuracy is: ", train_accuracy)
+    plot_acc_loss()
 
-        train_predicted_x = model.predict(x_train)
-        train_residuals = np.argmax(train_predicted_x,1) != np.argmax(y_train,1)
-        train_loss = sum(train_residuals)/len(train_residuals)
-        print("the train loss is: ", train_loss)
+def plot_acc_loss():
+    train_acc_list = []
+    test_acc_list = []
+    train_loss_list = []
 
-        test_predicted_x = model.predict(x_test)
-        test_valid = np.argmax(test_predicted_x,1) == np.argmax(y_test,1)
-        test_accuracy = sum(test_valid)/len(test_valid)
-        print("the test accuracy is: ", test_accuracy)
+    with open("Q5_data/train_acc.txt", "r") as f:
+        train_acc_list = [eval(i) for i in f.read().splitlines()]
+        f.close()
 
-        train_acc_list.append(train_accuracy)
-        train_loss_list.append(train_loss)
-        test_acc_list.append(test_accuracy)
-    
-    plot_acc_loss(train_acc_list, train_loss_list, test_acc_list)
+    with open("Q5_data/test_acc.txt", "r") as f:
+        test_acc_list = [eval(i) for i in f.read().splitlines()]
+        f.close()
 
-def plot_acc_loss(train_acc_list, train_loss_list, test_acc_list):
+    with open("Q5_data/train_loss.txt", "r") as f:
+        train_loss_list = [eval(i) for i in f.read().splitlines()]
+        f.close()
+
     x = [i for i in range(1, len(train_acc_list)+1)]
     plt.subplot(2, 1, 1)
     plt.plot(x, train_acc_list, label="training")
     plt.plot(x, test_acc_list, label="testing")
     plt.legend()
+    plt.title('Accuracy')
+    plt.xlabel('epoch')
+    plt.ylabel("1 = 100%")
     plt.subplot(2, 1, 2)
     plt.plot(x, train_loss_list)
-    plt.savefig("acc_loss.png")
+    plt.title('loss')
+    plt.xlabel('epoch')
+    plt.ylabel("loss")
+    plt.savefig("Q5_data/acc_loss.png")
     
 
 def show_train_image():
@@ -309,10 +352,32 @@ def show_model_structure():
     model.show_model_structure()
 
 def show_accuracy():
-    print("show_accuracy")
+    plot_acc_loss()
+    plt.clf()
+    img = mpimg.imread('Q5_data/acc_loss.png')
+    plt.imshow(img)
+    plt.show()
 
 def test(idx):
-    print(idx)
+    (x_train, y_train), (x_test, y_test) = cifar10.load_data()
+    x_test_origin = x_test
+    x_test = x_test.astype('float32')
+    
+    y_test = tf.keras.utils.to_categorical(y_test, 10)
 
-if __name__ == '__main__':
-    train_model()
+    model = cifar10vgg(
+        batch_size=128, 
+        maxepoches=100, 
+        learning_rate=0.1, 
+        train=False,
+        load=False)
+
+    predicted_x = model.predict(x_test[idx].reshape(-1,32,32,3))
+    plt.subplot(2, 1, 1)
+    plt.imshow(x_test_origin[idx])
+    plt.title(f"Image {idx}")
+    plt.subplot(2, 1, 2)
+    plt.bar(LABEL_NAME, predicted_x[0])
+    plt.xlabel("class")
+    plt.ylabel("1 = 100%")
+    plt.show()
