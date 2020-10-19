@@ -15,8 +15,10 @@ import os
 import random
 import matplotlib.pyplot as plt
 
+LABEL_NAME = ["airplane", "automobile", "bird", "cat", "deer", "dog", "frog", "horse", "ship", "truck"]
+
 class cifar10vgg:
-    def __init__(self, batch_size, maxepoches, learning_rate, train):
+    def __init__(self, batch_size, maxepoches, learning_rate, train, load):
         self.num_classes = 10
         self.weight_decay = 0.0005
         self.x_shape = [32,32,3]
@@ -27,6 +29,8 @@ class cifar10vgg:
         self.accuracy_list = []
         self.model = self.build_model()
         if train:
+            if load:
+                self.model.load_weights('cifar10vgg.h5')
             self.model = self.train(self.model)
         else:
             if os.path.exists("cifar10vgg.h5"):
@@ -192,7 +196,7 @@ class cifar10vgg:
 
 
         # training process in a for loop with learning rate drop every 25 epoches.
-        historytemp = model.fit_generator(
+        historytemp = model.fit(
             datagen.flow(x_train, y_train, batch_size=self.batch_size),
             steps_per_epoch=x_train.shape[0] // self.batch_size,
             epochs=self.maxepoches,
@@ -204,9 +208,13 @@ class cifar10vgg:
     
     def show_random_10_img(self):
         (x_train, y_train), (x_test, y_test) = cifar10.load_data()
-        for i in range(0, 10):
+        fig=plt.figure()
+        for i in range(1, 11):
             rand = random.randint(0, len(x_train))
-            
+            fig.add_subplot(1, 10, i)
+            plt.imshow(x_train[rand])
+            plt.xlabel(LABEL_NAME[y_train[rand][0]])
+        plt.show()
 
 
     def show_model_structure(self):
@@ -226,41 +234,78 @@ def train_model():
     y_train = tf.keras.utils.to_categorical(y_train, 10)
     y_test = tf.keras.utils.to_categorical(y_test, 10)
 
-    model = cifar10vgg(
-        batch_size=128, 
-        maxepoches=1, 
-        learning_rate=0.1, 
-        train=True)
+    train_acc_list = []
+    train_loss_list = []
+    test_acc_list = []
 
-    predicted_x = model.predict(x_test)
-    residuals = np.argmax(predicted_x,1) != np.argmax(y_test,1)
 
-    loss = sum(residuals)/len(residuals)
-    print("the validation 0/1 loss is: ",loss)
+    for i in range(0, 100):
+        print(f"epoch {i+1}")
+        model = cifar10vgg(
+            batch_size=128, 
+            maxepoches=1, 
+            learning_rate=0.1, 
+            train=True,
+            load=True if i != 0 else False)
+
+        train_predicted_x = model.predict(x_train)
+        train_valid = np.argmax(train_predicted_x,1) == np.argmax(y_train,1)
+        train_accuracy = sum(train_valid)/len(train_valid)
+        print("the train accuracy is: ", train_accuracy)
+
+        train_predicted_x = model.predict(x_train)
+        train_residuals = np.argmax(train_predicted_x,1) != np.argmax(y_train,1)
+        train_loss = sum(train_residuals)/len(train_residuals)
+        print("the train loss is: ", train_loss)
+
+        test_predicted_x = model.predict(x_test)
+        test_valid = np.argmax(test_predicted_x,1) == np.argmax(y_test,1)
+        test_accuracy = sum(test_valid)/len(test_valid)
+        print("the test accuracy is: ", test_accuracy)
+
+        train_acc_list.append(train_accuracy)
+        train_loss_list.append(train_loss)
+        test_acc_list.append(test_accuracy)
+    
+    plot_acc_loss(train_acc_list, train_loss_list, test_acc_list)
+
+def plot_acc_loss(train_acc_list, train_loss_list, test_acc_list):
+    x = [i for i in range(1, len(train_acc_list)+1)]
+    plt.subplot(2, 1, 1)
+    plt.plot(x, train_acc_list, label="training")
+    plt.plot(x, test_acc_list, label="testing")
+    plt.legend()
+    plt.subplot(2, 1, 2)
+    plt.plot(x, train_loss_list)
+    plt.savefig("acc_loss.png")
+    
 
 def show_train_image():
     model = cifar10vgg(
         batch_size=128, 
-        maxepoches=250, 
+        maxepoches=100, 
         learning_rate=0.1, 
-        train=False)
+        train=False,
+        load=False)
     model.show_random_10_img()
     
 
 def show_hyperparameters():
     model = cifar10vgg(
         batch_size=128, 
-        maxepoches=250, 
+        maxepoches=100, 
         learning_rate=0.1, 
-        train=False)
+        train=False,
+        load=False)
     model.show_hyperparameters()
 
 def show_model_structure():
     model = cifar10vgg(
         batch_size=128, 
-        maxepoches=250, 
+        maxepoches=100, 
         learning_rate=0.1, 
-        train=False)
+        train=False,
+        load=False)
     model.show_model_structure()
 
 def show_accuracy():
@@ -269,3 +314,5 @@ def show_accuracy():
 def test(idx):
     print(idx)
 
+if __name__ == '__main__':
+    train_model()
