@@ -13,10 +13,11 @@ def Perspective_Transform():
     refPt4 = []
     while True:
         ret, frame = cap.read()
-        frame_size = (frame.shape[1], frame.shape[0])
+        
         if not ret:
             break
-
+        
+        frame_size = (frame.shape[1], frame.shape[0])
         dictionary = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6X6_250)
         params = cv2.aruco.DetectorParameters_create()
         markerCorners, markerIDs, rejectedCandidates = cv2.aruco.detectMarkers(frame, dictionary, parameters=params)
@@ -55,8 +56,3 @@ def Perspective_Transform():
     cap.release()    
     out.release()
     cv2.destroyAllWindows()
-    print('Perspective_Transform')
-
-
-if __name__ == "__main__":
-    Perspective_Transform()
