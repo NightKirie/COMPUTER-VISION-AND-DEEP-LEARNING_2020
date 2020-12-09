@@ -33,13 +33,9 @@ def Background_Subtraction():
             break
         gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         print(f"Working on frame {int(cap.get(cv2.cv2.CAP_PROP_POS_FRAMES)-1)}")
-        for i in range(gray_frame.shape[0]):
-            for j in range(gray_frame.shape[1]):
-                if abs(gray_frame[i][j] - background_mean[i][j]) > (5 * background_std[i][j]):
-                    gray_frame[i][j] = 255
-                else:
-                    gray_frame[i][j] = 0
-       
+        gray_frame[abs(gray_frame - background_mean) >  5 * background_std] = 255
+        gray_frame[abs(gray_frame - background_mean) <=  5 * background_std] = 0
+
         if ori_list.size == 0:
             ori_list = np.array([frame])
         else: 
