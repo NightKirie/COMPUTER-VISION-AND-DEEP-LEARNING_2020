@@ -4,6 +4,7 @@ from tensorflow.keras.layers import Dense, Dropout, Activation, Flatten, BatchNo
 from tensorflow.keras.layers import Conv2D, MaxPool2D, ZeroPadding2D, AveragePooling2D, GlobalAveragePooling2D
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.callbacks import ModelCheckpoint, TensorBoard
+from tensorflow.keras.optimizers import Adam
 
 # from tensorflow.keras.models import model_from_json
 from tensorflow.keras import backend as K
@@ -18,22 +19,27 @@ import time
 # import cv2
 
 # import numpy as np
-# import tensorflow as tf
+import tensorflow as tf
 # import matplotlib.pyplot as plt
 
-root_dir = "./Q5_Image"
+ROOT_DIR = "Q5_Image"
 
 TF_WEIGHTS_PATH_NO_TOP = 'https://github.com/fchollet/deep-learning-models/releases/download/v0.2/resnet50_weights_tf_dim_ordering_tf_kernels_notop.h5'
+IMAGE_SIZE = (224, 224)
+NUM_CLASSES = 2
+BATCH_SIZE = 10
+FREEZE_LAYERS = 2
+NUM_EPOCHS = 20
 
 
 def Dataset_Preproscess():
-    cat_files = os.listdir(f"{root_dir}/Cat")
-    dog_files = os.listdir(f"{root_dir}/Dog")
-    cat_train, cat_valid = train_test_split(cat_files, test_size=0.1)
-    dog_train, dog_valid = train_test_split(dog_files, test_size=0.1)
+    cat_files = os.listdir(f"{ROOT_DIR}/Cat")[0:1999]
+    dog_files = os.listdir(f"{ROOT_DIR}/Dog")[0:1999]
+    cat_train, cat_valid = train_test_split(cat_files, test_size=0.2)
+    dog_train, dog_valid = train_test_split(dog_files, test_size=0.2)
     
-    train_dir = f'{root_dir}/train'
-    valid_dir = f'{root_dir}/valid'
+    train_dir = f'{ROOT_DIR}/train'
+    valid_dir = f'{ROOT_DIR}/valid'
     
     if os.path.exists(train_dir):
         rmtree(train_dir, ignore_errors=True)
@@ -51,9 +57,10 @@ def Dataset_Preproscess():
             timeout *= 2
 
     for file_name in cat_train:
-        copyfile(f'{root_dir}/Cat/{file_name}', f'{train_dir}/cat/{file_name}')
+        copyfile(os.path.join(ROOT_DIR, 'Cat', file_name), os.path.join(train_dir, 'cat', file_name))
     for file_name in dog_train:
-        copyfile(f'{root_dir}/Dog/{file_name}', f'{train_dir}/dog/{file_name}')
+        copyfile(os.path.join(ROOT_DIR, 'Dog', file_name), os.path.join(train_dir, 'dog', file_name))
+    print("Finish create train files")
 
     if os.path.exists(valid_dir):
         rmtree(valid_dir, ignore_errors=True)
@@ -71,9 +78,10 @@ def Dataset_Preproscess():
             timeout *= 2
 
     for file_name in cat_valid:
-        copyfile(f'{root_dir}/Cat/{file_name}', f'{valid_dir}/cat/{file_name}')
+        copyfile(os.path.join(ROOT_DIR, 'Cat', file_name), os.path.join(valid_dir, 'Cat', file_name))
     for file_name in dog_valid:
-        copyfile(f'{root_dir}/Dog/{file_name}', f'{valid_dir}/dog/{file_name}')
+        copyfile(os.path.join(ROOT_DIR, 'Dog', file_name), os.path.join(valid_dir, 'cat', file_name))
+    print("Finish create valid files")
     
 
 def identity_block(input_tensor, kernel_size, filters, stage, block):
@@ -129,7 +137,6 @@ def conv_block(input_tensor, kernel_size, filters, stage, block, strides=(2, 2))
     return x
 
 def ResNet50():
-    
     img_input = Input(shape=(224, 224, 3)) # image size is 224x224
 
     x = ZeroPadding2D(padding=(3, 3))(img_input)
@@ -159,68 +166,95 @@ def ResNet50():
     x = identity_block(x, 3, [512, 512, 2048], stage=5, block='c')
 
     base_model = Model(img_input, x)
+    # TF_WEIGHTS_PATH_NO_TOP = 'https://github.com/fchollet/deep-learning-models/releases/download/\
+    # v0.2/resnet50_weights_tf_dim_ordering_tf_kernels_notop.h5'  
+    # weights_path = get_file('resnet50_weights_tf_dim_ordering_tf_kernels_notop.h5',
+    #                         TF_WEIGHTS_PATH_NO_TOP,
+    #                         cache_subdir='models',
+    #                         md5_hash='a268eb855778b3df3c7506639542a6af')
+    # base_model.load_weights(weights_path)
 
     x = AveragePooling2D((7, 7), name='avg_pool')(base_model.output)
     x = Flatten()(x)
     x = Dropout(0.5)(x)
-    x = Dense(1, activation='sigmoid', name='output')(x)
-
+    x = Dense(NUM_CLASSES, activation='softmax', name='softmax')(x)
+   
     model = Model(inputs=base_model.input, outputs=x)
-
-    top_num = 4
-    for layer in model.layers[:-top_num]:
+    
+    for layer in model.layers[:-FREEZE_LAYERS]:
         layer.trainable = False
 
-    for layer in model.layers[-top_num:]:
+    for layer in model.layers[-FREEZE_LAYERS:]:
         layer.trainable = True
     print(model.summary())
 
     return model
 
-def Training():
+def Training():    
+    train_datagen = ImageDataGenerator(rotation_range=40,
+                                        width_shift_range=0.2,
+                                        height_shift_range=0.2,
+                                        shear_range=0.2,
+                                        zoom_range=0.2,
+                                        channel_shift_range=10,
+                                        horizontal_flip=True,
+                                        fill_mode='nearest')
+    train_generator = train_datagen.flow_from_directory(os.path.join(ROOT_DIR, "train"),  # this is the target directory
+                                                        target_size=IMAGE_SIZE,  # all images will be resized to 224x224
+                                                        batch_size=BATCH_SIZE,
+                                                        interpolation='bicubic',
+                                                        class_mode='categorical',
+                                                        shuffle=True)
     
-    image_size = (224, 224)
+    validation_datagen = ImageDataGenerator()
+    validation_generator = validation_datagen.flow_from_directory(os.path.join(ROOT_DIR, "valid"),  # this is the target directory
+                                                                  target_size=IMAGE_SIZE,  # all images will be resized to 224x224
+                                                                  batch_size=BATCH_SIZE,
+                                                                  interpolation='bicubic',
+                                                                  class_mode='categorical',
+                                                                  shuffle=False)
     
-    train_datagen = ImageDataGenerator(rescale=1.0/255)
-    train_generator = train_datagen.flow_from_directory('Q5_Image/train',  # this is the target directory
-                                                        target_size=image_size,  # all images will be resized to 224x224
-                                                        batch_size=50,
-                                                        class_mode='binary')
-    
-    validation_datagen = ImageDataGenerator(rescale=1.0/255)
-    validation_generator = validation_datagen.flow_from_directory('Q5_Image/valid',  # this is the target directory
-                                                                  target_size=image_size,  # all images will be resized to 224x224
-                                                                  batch_size=50,
-                                                                  class_mode='binary')
+
+
+
     os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+    model_path = os.path.join(ROOT_DIR, f"result_{NUM_EPOCHS}_{BATCH_SIZE}")
+    model_dir = os.path.join(ROOT_DIR, "model")
+    if not os.path.exists(model_dir):
+        os.mkdir(model_dir)
+    log_dir = os.path.join(ROOT_DIR, "log")
+    if not os.path.exists(log_dir):
+        os.mkdir(log_dir)
+    tbCallBack = TensorBoard(log_dir=log_dir,  
+                             histogram_freq=0,  
+                             #BATCH_SIZE=600,     
+                             write_graph=True, 
+                             write_grads=True, 
+                             write_images=True,
+                             embeddings_freq=0, 
+                             embeddings_layer_names=None, 
+                             embeddings_metadata=None)
     model = ResNet50()
-    model.compile(loss='binary_crossentropy', optimizer='adadelta', metrics=['accuracy'])
-    model_path = f"{root_dir}/model"
-    if os.path.exists(model_path):
-        os.mkdir(model_path)
-    filepath = os.path.join(model_path ,"model_{epoch:03d}_{val_accuracy:.3f}.hdf5")
+    
+    model.compile(loss='categorical_crossentropy', optimizer=Adam(lr=1e-5), metrics=['accuracy'])
+    
+    filepath = os.path.join(model_dir ,"model_{epoch:03d}_{val_accuracy:.3f}.hdf5")
     checkpoint = ModelCheckpoint(filepath, verbose=1, monitor='val_accuracy', save_best_only=True)
-    History = model.fit(train_generator,
-                        shuffle=True,
-                        steps_per_epoch=2048,
-                        epochs=40,
-                        batch_size=500,
-                        validation_data=validation_generator,
-                        validation_steps=1024,
-                        callbacks=[checkpoint, TensorBoard(log_dir=f"{root_dir}/logs", histogram_freq=1)])
-    # History = full_model.fit([train_re, train_re_org, train_qp, train_cu], train_label,
-    #                          shuffle=True,
-    #                          epochs=steps, 
-    #                          batch_size=batch_size, 
-    #                          validation_split=0.2,
-    #                          callbacks=[TensorBoard(log_dir='./logs', histogram_freq=1),best_model])
+    model.fit_generator(train_generator,
+                                  epochs=NUM_EPOCHS,
+                                  #steps_per_epoch=train_generator.samples,
+                                  validation_data=validation_generator,
+                                  #validation_steps=validation_generator.samples,
+                                  callbacks=[tbCallBack, checkpoint])
+    model.save(os.path.join(model_path, "model.h5"))
 
 
 if __name__ == "__main__":
     # For generate train & valid data, only need to do once
     # Dataset_Preproscess()
     # For training
-    Training()
+    # Training()
+    print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
     
     
 
