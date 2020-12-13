@@ -11,12 +11,13 @@ import Q1 as q1
 import Q2 as q2
 import Q3 as q3
 import Q4 as q4
+import Q5 as q5
 
 
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(400, 515)
+        Form.resize(800, 515)
         self.groupBox = QtWidgets.QGroupBox(Form)
         self.groupBox.setGeometry(QtCore.QRect(20, 10, 361, 81))
         self.groupBox.setObjectName("groupBox")
@@ -53,6 +54,22 @@ class Ui_Form(object):
         self.btn_4_2.setGeometry(QtCore.QRect(50, 70, 251, 23))
         self.btn_4_2.setObjectName("btn_4_2")
         self.btn_4_2.clicked.connect(q4.Compile_Error)
+        self.groupBox_5 = QtWidgets.QGroupBox(Form)
+        self.groupBox_5.setGeometry(QtCore.QRect(400, 10, 361, 450))
+        self.groupBox_5.setObjectName("groupBox_5")
+        self.btn_5_1 = QtWidgets.QPushButton(self.groupBox_5)
+        self.btn_5_1.setGeometry(QtCore.QRect(50, 30, 251, 23))
+        self.btn_5_1.setObjectName("btn_5_1")
+        self.btn_5_1.clicked.connect(q5.Show_Train_Result)
+        self.btn_5_2 = QtWidgets.QPushButton(self.groupBox_5)
+        self.btn_5_2.setGeometry(QtCore.QRect(50, 100, 251, 23))
+        self.btn_5_2.setObjectName("btn_5_2")
+        self.btn_5_2.clicked.connect(q5.Show_Tensorboard)
+        self.btn_5_3 = QtWidgets.QPushButton(self.groupBox_5)
+        self.btn_5_3.setGeometry(QtCore.QRect(50, 170, 251, 23))
+        self.btn_5_3.setObjectName("btn_5_3")
+        self.btn_5_3.clicked.connect(q5.Classify_Random_Picture)
+
 
         self.retranslateUi(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)
@@ -70,4 +87,8 @@ class Ui_Form(object):
         self.groupBox_4.setTitle(_translate("Form", "4. PCA"))
         self.btn_4_1.setText(_translate("Form", "4.1 Image Reconstruction"))
         self.btn_4_2.setText(_translate("Form", "4.2 Compute the Reconstruction Error"))
+        self.groupBox_5.setTitle(_translate("Form", "5. Dogs and Cats classification Using ResNet50 "))
+        self.btn_5_1.setText(_translate("Form", "5.1 Show Train Result"))
+        self.btn_5_2.setText(_translate("Form", "5.2 Show TensorBoard"))
+        self.btn_5_3.setText(_translate("Form", "5.3 Classify random picture"))
 

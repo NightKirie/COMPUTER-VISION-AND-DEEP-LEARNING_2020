@@ -1,4 +1,6 @@
-./Q5_Image/Cat
-./Q5_Image/Dog
-./Q5_Image/train
-./Q5_Image/valid
+./Q5_Image/Cat/*
+./Q5_Image/Dog/*
+./Q5_Image/train/*
+./Q5_Image/valid/*
+./Q5_Image/pre_train_weight/*
+./Q5_Image/log/*
