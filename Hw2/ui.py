@@ -62,13 +62,17 @@ class Ui_Form(object):
         self.btn_5_1.setObjectName("btn_5_1")
         self.btn_5_1.clicked.connect(q5.Show_Train_Result)
         self.btn_5_2 = QtWidgets.QPushButton(self.groupBox_5)
-        self.btn_5_2.setGeometry(QtCore.QRect(50, 100, 251, 23))
+        self.btn_5_2.setGeometry(QtCore.QRect(50, 130, 251, 23))
         self.btn_5_2.setObjectName("btn_5_2")
         self.btn_5_2.clicked.connect(q5.Show_Tensorboard)
         self.btn_5_3 = QtWidgets.QPushButton(self.groupBox_5)
-        self.btn_5_3.setGeometry(QtCore.QRect(50, 170, 251, 23))
+        self.btn_5_3.setGeometry(QtCore.QRect(50, 230, 251, 23))
         self.btn_5_3.setObjectName("btn_5_3")
         self.btn_5_3.clicked.connect(q5.Classify_Random_Picture)
+        self.btn_5_4 = QtWidgets.QPushButton(self.groupBox_5)
+        self.btn_5_4.setGeometry(QtCore.QRect(50, 330, 251, 23))
+        self.btn_5_4.setObjectName("btn_5_4")
+        self.btn_5_4.clicked.connect(q5.Show_Acc_Diff)
 
 
         self.retranslateUi(Form)
@@ -91,4 +95,5 @@ class Ui_Form(object):
         self.btn_5_1.setText(_translate("Form", "5.1 Show Train Result"))
         self.btn_5_2.setText(_translate("Form", "5.2 Show TensorBoard"))
         self.btn_5_3.setText(_translate("Form", "5.3 Classify random picture"))
+        self.btn_5_4.setText(_translate("Form", "5.4 Show Accuracy Comparison between models"))
 
