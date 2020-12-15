@@ -320,7 +320,7 @@ if __name__ == "__main__":
     # For generate train & valid data, only need to do once
     # Dataset_Preproscess()
     # For training normally
-    Training(False)
+    # Training(False)
     # For training with random eraser
     # Training(True)
     
