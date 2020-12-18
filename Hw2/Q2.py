@@ -12,10 +12,10 @@ def Preprocessing():
     params.filterByInertia = True
     params.minArea = 30.0
     params.maxArea = 100.0
-    params.minCircularity = 0.8
-    params.minThreshold = 50
-    params.maxThreshold = 255
-    params.minConvexity = 0.7
+    params.minCircularity = 0.83
+    params.minThreshold = 10
+    params.maxThreshold = 150
+    params.minConvexity = 0.8
     params.minInertiaRatio = 0.4
     while True:
         ret, img = cap.read()
@@ -23,7 +23,8 @@ def Preprocessing():
             break
         detector = cv2.SimpleBlobDetector_create(params)
         # Detect blobs.
-        keypoints = detector.detect(img)
+        gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        keypoints = detector.detect(gray_img)
         
         # Draw keypoints
         for kp in keypoints:
@@ -114,3 +115,5 @@ def Video_Tracking():
     cap.release()
     cv2.destroyAllWindows()
 
+if __name__ == "__main__":
+    Preprocessing()
